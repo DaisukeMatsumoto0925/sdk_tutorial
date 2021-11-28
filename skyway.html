@@ -14,8 +14,9 @@
 
     <video id="my-video" width="400px" autoplay muted playsinline></video>
     <p id="my-id">test</p>
-
-
+    <input id="their-id"></input>
+    <button id="make-call">発信</button>
+    <video id="their-video" width="400px" autoplay muted playsinline></video>
     <script>
 
   const peer = new Peer({
@@ -38,6 +39,25 @@
           console.error('mediaDevice.getUserMedia() error:', error);
           return;
         });
+
+  document.getElementById('make-call').onclick = () => {
+    const theirID = document.getElementById('their-id').value;
+    const mediaConnection = peer.call(theirID, localStream);
+    setEventListener(mediaConnection);
+  }
+
+  const setEventListener = mediaConnection => {
+    mediaConnection.on('stream', stream => {
+      const videoElm = document.getElementById('their-video')
+      videoElm.srcObject = stream;
+      videoElm.play();
+    });
+  }
+
+  peer.on('call', mediaConnection => {
+    mediaConnection.answer(localStream);
+    setEventListener(mediaConnection);
+  });
     </script>
 </body>
 
